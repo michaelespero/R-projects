@@ -1,5 +1,5 @@
 ---
-title: "Semantic Priming K. R."
+title: "Semantic Priming: K. R."
 author: "Michael Espero"
 date: "2/11/2018"
 output:
@@ -12,24 +12,29 @@ knitr::opts_chunk$set(error = TRUE, cache = FALSE, comment = NA, tidy = TRUE)
 
 ## Introduction
 
-This is a demonstration regarding semantic priming. For problems or concerns, please contact me <michael.espero@cgu.edu>.
+This is a demonstration regarding semantic priming. For problems or suggestions, please contact me <michael.espero@cgu.edu>.
 
 ## Setup & Data Import
-```{r Setup & Data Import, comment=F, message=F, warning=F}
+```{r Setup & Data Import, comment=NA, message=F, warning=F}
 set.seed(789)
 
 # This build only requires that you have the "easypackages" library pre-installed. If it throws and error, try installing "easypackages" with install.packages()
 require(easypackages)
 packages(
   "tidyverse", "broom", "skimr", "plotly", "apaTables", "GGally",
-  "caret", "psych", "haven", "car"
+  "caret", "psych", "haven", "car", "ggthemes"
 )
 
-exp_1_spss_data <- read_sav("eprime/exp_1_spss_data.sav")
 # We can make a pointer called "dat" to data we stored on Github.
-# Here, we remove the filter column vector (4) from the spss data and filter the
-# observations so only correct responses will be in dat.
-dat <- exp_1_spss_data[, -4] %>%
+dat <- "https://raw.githubusercontent.com/michaelespero/data-projects/master/dat_ex_1_semantic_priming.csv"
+
+dat <- read_csv(dat) # Read in the data from the specified url.
+
+
+# exp_1_spss_data <- read_sav("eprime/exp_1_spss_data.sav")
+# We can make a pointer called "dat" to data we stored on Github.
+# Here, we filter the observations so only correct responses will be in dat.
+dat <- dat %>%
   filter(TargetAcc == 1)
 
 # Let's make sure we have only the correct responses.
@@ -41,7 +46,8 @@ dat <- exp_1_spss_data[, -4] %>%
 dat$TargetAcc <- as.factor(dat$TargetAcc)
 dat$TrialType <- as.factor((dat$TrialType))
 
-# dat <- read_csv(dat) # Read in the data from the specified url.
+# Let's make it clear that our first column contains the number of each trial.
+names(dat)[names(dat) == "X1"] <- "TrialNum"
 
 class(dat) # Is it a data frame?
 
@@ -58,23 +64,48 @@ kurtosi(dat$TargetRT)
 
 What do you notice?:
 
-```{r show, echo=FALSE, comment=F, message=F, warning=F}
+```{r show, echo=T, comment=NA, message=F, warning=F}
 glimpse(dat)
 # We can use this nifty function to make a matrix illustrating bivariate relationships in the data.
 ggpairs(dat)
 
 # 3D plots may be helpful in further exploration of how the data hangs together.
-dat_2 <- exp_1_spss_data[, -4]
 
-p0 <- plot_ly(data = dat_2, z = ~TargetRT, x = ~TrialType, y = ~TargetAcc, opacity = 0.6) %>% add_markers(color = ~TargetAcc)
+p0 <- plot_ly(data = dat, z = ~TargetRT, x = ~TrialType, y = ~TargetAcc, opacity = 0.6) %>% add_markers(color = ~TargetAcc)
 p0
+
+# Let's make a violin plot: c1
+c1 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), fill = TrialType)) +
+  geom_violin() + theme_tufte() +
+  labs(
+    fill = "Kind of Trial",
+    title = "K.R.'s Reaction Time by Accuracy",
+    y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
+    caption = "Claremont, Spring 2018"
+  ) +
+  scale_x_discrete(labels = c("Wrong", "Right")) + coord_flip()
+
+# Let's make a boxplot: c2
+c2 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), col = TrialType)) +
+  geom_boxplot() + theme_tufte() +
+  labs(
+    col = "Kind of Trial",
+    title = "K.R.'s Reaction Time by Accuracy",
+    y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
+    caption = "Claremont, Spring 2018"
+  ) +
+  scale_x_discrete(labels = c("Wrong", "Right")) + coord_flip()
+
+# Display plots c1 and c2
+c1
+c2
 ```
 
 ## Analyses
 
 How might we test the data?:
 
-```{r Analyze, echo=FALSE, comment=F, message=F, warning=F}
+```{r Analyze, echo=T, comment=NA, message=F, warning=F}
 
 # Assumption Check: is the variance equal?
 leveneTest(dat$TargetRT, group = dat$TrialType, center = mean)
@@ -83,27 +114,27 @@ leveneTest(dat$TargetRT, group = dat$TrialType, center = mean)
 react_mod <- lm(TargetRT ~ TrialType, dat)
 
 # Let's get some ANOVA output
-
 kable(sjstats::anova_stats(react_mod), booktabs = T)
 
 # Let's have another look with robust standard errors
-
 Anova(
   react_mod, Type = "II",
   white.adjust = TRUE
 )
 
-# One more ANOVA, this time using the Welche's correction for unequal variance.
-
+# One more ANOVA, this time using the Welch's correction for unequal variance.
 oneway.test(
   TargetRT ~ TrialType,
-  data = dat_2,
+  data = dat,
   var.equal = FALSE
 )
 
 # How do the means line up? by trial type?
 TukeyHSD(aov(react_mod))
 
-plot(TukeyHSD(aov(TargetRT ~ TrialType, exp_1_spss_data)))
+plot(TukeyHSD(aov(TargetRT ~ TrialType, dat)))
 ```
 
+## Interpretation
+
+It appears that regardless of trial type (nonword, unrelated word, related word), K. R. remained consistent with regards to speed of response and accuracy. For K. R., there appears to be no semantic priming effect in the sample at hand.
