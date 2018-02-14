@@ -72,34 +72,8 @@ ggpairs(dat)
 
 # 3D plots may be helpful in further exploration of how the data hangs together.
 
-p0 <- plot_ly(data = dat, z = ~TargetRT, x = ~TrialType, y = ~TargetAcc, opacity = 0.6) %>% add_markers(color = ~TargetAcc)
-p0
-
-# Let's make a violin plot: c1
-c1 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), fill = TrialType)) +
-  geom_violin() + theme_tufte() +
-  labs(
-    fill = "Kind of Trial",
-    title = "K.R.'s Reaction Time by Accuracy",
-    y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
-    caption = "Claremont, Spring 2018"
-  ) +
-  scale_x_discrete(labels = c("Right")) + coord_flip()
-
-# Let's make a boxplot: c2
-c2 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), col = TrialType)) +
-  geom_boxplot() + theme_tufte() +
-  labs(
-    col = "Kind of Trial",
-    title = "K.R.'s Reaction Time by Accuracy",
-    y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
-    caption = "Claremont, Spring 2018"
-  ) +
-  scale_x_discrete(labels = c("Right")) + coord_flip()
-
-# Display plots c1 and c2
-c1
-c2
+#p0 <- plot_ly(data = dat, z = ~TargetRT, x = ~TrialType, y = ~TargetAcc, opacity = 0.6) %>% add_markers(color = ~TargetAcc)
+#p0
 ```
 
 ## Analyses
