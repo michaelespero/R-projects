@@ -1,9 +1,10 @@
 ---
-title: "Semantic Priming: K. R."
+title: 'Semantic Priming: K. R.'
 author: "Michael Espero"
 date: "2/11/2018"
 output:
   html_document: default
+  pdf_document: default
 ---
 
 ```{r, echo=FALSE, results=FALSE, message=FALSE, cache=FALSE, warning=FALSE}
@@ -18,7 +19,7 @@ This is a demonstration regarding semantic priming. For problems or suggestions,
 ```{r Setup & Data Import, comment=NA, message=F, warning=F}
 set.seed(789)
 
-# This build only requires that you have the "easypackages" library pre-installed. If it throws and error, try installing "easypackages" with install.packages()
+# This build only requires that you have the "easypackages" library pre-installed. If it throws an error, try installing "easypackages" with install.packages()
 require(easypackages)
 packages(
   "tidyverse", "broom", "skimr", "plotly", "apaTables", "GGally",
@@ -31,7 +32,7 @@ dat <- "https://raw.githubusercontent.com/michaelespero/data-projects/master/dat
 dat <- read_csv(dat) # Read in the data from the specified url.
 
 
-# exp_1_spss_data <- read_sav("eprime/exp_1_spss_data.sav")
+# dat <- read_sav("eprime/exp_1_spss_data.sav")
 # We can make a pointer called "dat" to data we stored on Github.
 # Here, we filter the observations so only correct responses will be in dat.
 dat <- dat %>%
@@ -47,7 +48,7 @@ dat$TargetAcc <- as.factor(dat$TargetAcc)
 dat$TrialType <- as.factor((dat$TrialType))
 
 # Let's make it clear that our first column contains the number of each trial.
-names(dat)[names(dat) == "X1"] <- "TrialNum"
+#names(dat)[names(dat) == "X1"] <- "TrialNum"
 
 class(dat) # Is it a data frame?
 
@@ -83,7 +84,7 @@ c1 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), fill = TrialType)
     y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
     caption = "Claremont, Spring 2018"
   ) +
-  scale_x_discrete(labels = c("Wrong", "Right")) + coord_flip()
+  scale_x_discrete(labels = c("Right")) + coord_flip()
 
 # Let's make a boxplot: c2
 c2 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), col = TrialType)) +
@@ -94,7 +95,7 @@ c2 <- ggplot(dat, aes(x = TargetAcc, y = as.numeric(TargetRT), col = TrialType))
     y = "Reaction Time in Milliseconds", x = "Accuracy", subtitle = "Distribution of Responses by K. R.",
     caption = "Claremont, Spring 2018"
   ) +
-  scale_x_discrete(labels = c("Wrong", "Right")) + coord_flip()
+  scale_x_discrete(labels = c("Right")) + coord_flip()
 
 # Display plots c1 and c2
 c1
@@ -129,7 +130,7 @@ oneway.test(
   var.equal = FALSE
 )
 
-# How do the means line up? by trial type?
+# How do the means line up by trial type?
 TukeyHSD(aov(react_mod))
 
 plot(TukeyHSD(aov(TargetRT ~ TrialType, dat)))
